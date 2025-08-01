@@ -192,7 +192,7 @@ class ptoImage {
   std::vector<Mat> descriptors = std::vector<Mat>(detectorType::ALL);
   
   // Constructor used during importing referenced images from a PTO
-  ptoImage( std::string i_filename, int i_idx )
+  ptoImage( std::string i_filename, int i_idx ) 
   { 
      ptoImage();
      filename = i_filename;
@@ -984,7 +984,7 @@ class imageIndexPair {
 
   bool operator == (const imageIndexPair &p)
   {
-     if (idx1 == p.idx1 && idx1 == p.idx1)
+     if (idx1 == p.idx1 && idx2 == p.idx2)
         return true;
      return false;
   }
@@ -6994,7 +6994,7 @@ if( loglevel > 8 )
 	 foo = images.back();
 if( loglevel > 6 )
 {
-	 sout << "IMAGE: " << images.size() - 1 << " w=" << foo.w << " h=" << foo.w << " name=" << foo.filename << std::endl;
+	 sout << "IMAGE: " << images.size() - 1 << " w=" << foo.w << " h=" << foo.h << " name=" << foo.filename << std::endl;
 }
       } // 'i'
 
@@ -7242,6 +7242,20 @@ if( loglevel > 6 )
         images_ok = false;
         sout << "ERROR: Image [" << i << "] Size Mismatch.  Image 0: " << cols0 << " rows0 " << images[i].h << "  !=  "
              << " This IMG: " << images[i].img.cols << " x " << images[i].img.rows << std::endl;
+     }
+
+     if (images[i].needed && (images[i].w == images[i].img.rows || images[i].h == images[i].img.cols))
+     {
+         if (images[i].img.rows > images[i].img.cols) {
+             // Hugin seems to automatically rotate portrait images 90 degree counter-clockwise
+             images_ok = false;
+             sout << " WARN: Image [" << i << "] Size Rotated.  PTO: " << images[i].w << " x " << images[i].h << "  !=  "
+                 << " IMG: " << images[i].img.cols << " x " << images[i].img.rows << std::endl;
+
+             cv::rotate(images[i].img, images[i].img, cv::ROTATE_90_COUNTERCLOCKWISE);
+             cv::rotate(images[i].imgGray, images[i].imgGray, cv::ROTATE_90_COUNTERCLOCKWISE);
+             sout << " INFO: Rotated Image [" << i << "] to be the same as PTO." << std::endl;
+         }
      }
      
      if( images[i].needed && ( images[i].w != images[i].img.cols || images[i].h != images[i].img.rows ) )
