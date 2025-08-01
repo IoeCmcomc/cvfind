@@ -19,6 +19,11 @@
 
 */
 
+#if defined(_WIN32) || defined(__MINGW32__)
+#define WINDOWS
+#define _CRT_SECURE_NO_WARNINGS // TODO: fix localtime and sprintf
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -648,7 +653,8 @@ class ptoTrialPermutation {
         + to_string( R.width ) + ", " + to_string( R.height ) + ")"
 
 
-#define BENCHMARK(B,T) (B).push_back(benchmarkEpoc( (T), std::chrono::high_resolution_clock::now() ) )
+//#define BENCHMARK(B,T) (B).push_back(benchmarkEpoc( (T), std::chrono::high_resolution_clock::now() ) )
+#define BENCHMARK(B,T) (B).push_back(benchmarkEpoc( (T), std::chrono::system_clock::now() ) )
 
 
 #define IMGLOG sout << "alignImage( " << left0padint(idx1, 4) << " --> " << left0padint(idx2, 4) << " ): "
@@ -3910,7 +3916,8 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
   {
     int xSize = images[idx1].img.cols;
     int ySize = images[idx1].img.rows;
-    int scalars[xSize + ySize];  
+    //int scalars[xSize + ySize];  
+    std::vector<int> scalars(xSize + ySize);
 
   for( size_t i = 0; i < xSize + ySize; i++ )
   {
@@ -4898,7 +4905,8 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
      std::vector<std::vector<std::vector<float>>> derr;
      std::vector<std::vector<std::vector<float>>> derr_filt;
      // a flat list of RANSAC error distances, probabaly can be eliminated
-     float distance[ points1.size() + 1 ];
+     //float distance[ points1.size() + 1 ];
+     std::vector<float> distance(points1.size() + 1);
 
        BENCHMARK( pairs[idx1][idx2].benchmarks, "Homography Based Filter ..." );
 
@@ -8767,7 +8775,11 @@ while( false && rowSizeM1 > 3 )
     if( exitDelay > 0 )
     {
        cout << " INFO: >>> waiting for " << exitDelay << " seconds <<< " << std::endl;
-       sleep(exitDelay);
+        #if defined(WINDOWS)
+           std::this_thread::sleep_for(std::chrono::seconds(exitDelay));
+        #else
+            sleep(exitDelay);
+        #endif
     }
   
   // Welp, we didn't error out, so indicate success  
