@@ -1,3 +1,5 @@
+**NOTE: This repo is just an attempt to build [cvfind](https://github.com/Bob-O-Rama/cvfind "cvfind") for Windows. The binary builds are only tested on Windows 11. Download [here](https://github.com/IoeCmcomc/cvfind/releases "here").**
+
 # cvfind
 Project cleanup tool and cpfind alternative for Hugin / panotools with a focus on tiling, chip photograpy, and source images with highly repeating fine patterns.
 
